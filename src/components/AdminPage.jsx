@@ -8,7 +8,7 @@ export default function AdminPage() {
   const [listKey, setListKey] = useState(0)
   const [toast, setToast] = useState(null)
 
-  //control del modal: null = creación, objeto = edición
+  //control del modal: null = creación, objeto = edicion
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedCar, setSelectedCar] = useState(null)
 
@@ -57,7 +57,7 @@ export default function AdminPage() {
 
   return (
     <div>
-      <Notification toast={toast} onClose={() => setToast(null)} />  // Componente de notificación
+      <Notification toast={toast} onClose={() => setToast(null)} />
 
       <div className="admin-nav">
         <button className="active">Listado</button>
