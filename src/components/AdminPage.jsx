@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { createCar, updateCar } from '../api/cars'
 import AdminCarsList from './AdminCarsList'
 import CarFormModal from './CarFormModal'
 import Notification from './Notification'
+console.log(React)
 
 export default function AdminPage() {
   const [listKey, setListKey] = useState(0)
