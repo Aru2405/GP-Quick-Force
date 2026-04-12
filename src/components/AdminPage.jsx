@@ -65,11 +65,23 @@ export default function AdminPage() {
 
       {/*BOTON ANADIR COCHE */}
       <div className="mb-4">
-        <button
-          onClick={handleAddCar}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          style={{
+            backgroundColor: '#801a33',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            marginBottom: '20px',
+            transition: 'background-color 0.3s'
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#a02140'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#801a33'}
         >
-          + Anadir Vehiculo
+          + Añadir Vehículo
         </button>
       </div>
 
