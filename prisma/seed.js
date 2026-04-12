@@ -33,6 +33,15 @@ async function main() {
         year: 2021,
         pricePerDay: 32.0
       }
+    }),
+    
+    prisma.car.create({
+      data: {
+        make: 'BMW',
+        model: 'X4',
+        year: 2024,
+        pricePerDay: 130.0
+      }
     })
   ])
 
