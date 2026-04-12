@@ -1,26 +1,22 @@
-import client from './client'
+import client from './client';
 
+// Obtener todos los coches
 export async function getCars() {
   const resp = await client.get('/cars')
   return resp.data
 }
 
-export async function getCar(id) {
-  const resp = await client.get(`/cars/${id}`)
-  return resp.data
-}
+// Crear un nuevo coche
+export const createCar = (carData) => {
+  return client.post("/cars", carData);
+};
 
-export async function createCar(carData) {
-  const resp = await client.post('/cars', carData)
-  return resp.data
-}
+// Actualizar un coche existente
+export const updateCar = (id, carData) => {
+  return client.put(`/cars/${id}`, carData);
+};
 
-export async function updateCar(id, carData) {
-  const resp = await client.put(`/cars/${id}`, carData)
-  return resp.data
-}
-
+// Eliminar un coche
 export async function deleteCar(id) {
   await client.delete(`/cars/${id}`)
 }
-
