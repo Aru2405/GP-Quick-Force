@@ -1,5 +1,6 @@
 import React from 'react'
 import AdminPage from './components/AdminPage'
+console.log(React)
 
 export default function App() {
   return (

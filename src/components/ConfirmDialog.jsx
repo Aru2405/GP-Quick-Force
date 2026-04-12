@@ -1,4 +1,5 @@
 import React from 'react'
+console.log(React)
 
 export default function ConfirmDialog({ open, title = 'Confirmar', message, onConfirm, onCancel }) {
   if (!open) return null

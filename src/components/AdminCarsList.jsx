@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { getCars, deleteCar } from '../api/cars'
+import { deleteCar, getCars } from '../api/cars'
 import ConfirmDialog from './ConfirmDialog'
+console.log(React)
 
 export default function AdminCarsList({ onEdit, refreshKey, notify }) {
   const [cars, setCars] = useState([])

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+console.log(React)
 
 export default function CarFormModal({ isOpen, onClose, onSave, car }) {
     const [form, setForm] = useState({
