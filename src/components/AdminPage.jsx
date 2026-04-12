@@ -7,7 +7,6 @@ import Notification from './Notification'
 export default function AdminPage() {
   const [listKey, setListKey] = useState(0)
   const [toast, setToast] = useState(null)
-
   //control del modal: null = creación, objeto = edicion
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedCar, setSelectedCar] = useState(null)
@@ -25,7 +24,7 @@ export default function AdminPage() {
     setIsModalOpen(true)
   }
 
-  //ABRIR EDICIÓN (lo recibe de AdminCarsList)
+  //ABRIR EDICION (lo recibe de AdminCarsList)
   const handleEditCar = (car) => {
     setSelectedCar(car)
     setIsModalOpen(true)
