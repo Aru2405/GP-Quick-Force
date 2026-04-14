@@ -51,7 +51,9 @@ export default function AdminPage() {
       triggerReload()
       handleCloseModal()
     } catch (error) {
-      notify('Error al guardar: ' + (error?.message || ''), 'error')
+      // Extraemos el mensaje real que nos manda el servidor, si no existe, usamos el de por defecto
+      const mensajeReal = error.response?.data?.message || error.message
+      notify('Error al guardar: ' + mensajeReal, 'error')
     }
   }
 
