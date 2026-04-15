@@ -1,14 +1,31 @@
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('🌱 Limpiando y sembrando base de datos...');
 
-  // Clear existing cars
-  await prisma.car.deleteMany()
+  // 1. Borramos todo para evitar duplicados y errores de clave única
+  await prisma.car.deleteMany();
+  await prisma.user.deleteMany();
 
-  // Create sample cars
+  // 2. Creamos el usuario Admin con la contraseña encriptada
+  // Esto es lo que permite que el login funcione de verdad
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('supersecreto', salt);
+
+  await prisma.user.create({
+    data: {
+      email: 'jefe@concesionario.com',
+      password: hashedPassword,
+      role: 'ADMIN' // Usamos el enum definido en vuestro schema
+    }
+  });
+
+  console.log('✅ Usuario Admin creado: jefe@concesionario.com');
+
+  // 3. Creamos los coches iniciales respetando vuestro modelo
   const cars = await Promise.all([
     prisma.car.create({
       data: {
@@ -34,7 +51,7 @@ async function main() {
         pricePerDay: 32.0
       }
     }),
-    
+
     prisma.car.create({
       data: {
         make: 'BMW',
@@ -43,18 +60,17 @@ async function main() {
         pricePerDay: 130.0
       }
     })
-  ])
+  ]);
 
-  console.log(`✅ Seeded ${cars.length} cars`)
-  console.log(cars)
+  console.log(`✅ Base de datos lista con ${cars.length} coches.`);
 }
 
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error('❌ Error seeding:', e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error('❌ Error al sembrar la base de datos:', e);
+    await prisma.$disconnect();
+    process.exit(1);
+    });
