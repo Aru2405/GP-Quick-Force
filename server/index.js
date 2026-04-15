@@ -5,6 +5,7 @@ const carsRepository = require('./repositories/carsRepository')
 // 1. Importar Auth
 const authRepository = require('./repositories/authRepository')
 const { verifyToken, isAdmin } = require('./middleware/auth')
+const favoritesRepository = require('./repositories/favoritesRepository')
 
 const app = express()
 app.use(cors())
@@ -83,6 +84,33 @@ app.delete('/api/cars/:id', verifyToken, isAdmin, async (req, res) => {
     if (err.message === 'Vehículo no encontrado') {
       return res.status(404).json({ message: err.message })
     }
+    res.status(400).json({ message: err.message })
+  }
+})
+
+// Obtener favoritos del usuario
+app.get('/api/favorites', verifyToken, async (req, res) => {
+  const favs = await favoritesRepository.findByUser(req.user.id)
+  res.json(favs)
+})
+
+// Añadir favorito
+app.post('/api/favorites', verifyToken, async (req, res) => {
+  const { carId } = req.body
+  try {
+    const fav = await favoritesRepository.add(req.user.id, carId)
+    res.status(201).json(fav)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+})
+
+// Quitar favorito
+app.delete('/api/favorites/:carId', verifyToken, async (req, res) => {
+  try {
+    await favoritesRepository.remove(req.user.id, req.params.carId)
+    res.status(204).send()
+  } catch (err) {
     res.status(400).json({ message: err.message })
   }
 })

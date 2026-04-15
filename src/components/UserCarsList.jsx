@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCars } from '../api/cars';
+import { getFavorites, addFavorite, removeFavorite } from '../api/favorites';
 
 const UserCarsList = () => {
   const [cars, setCars] = useState([]);
@@ -21,11 +22,60 @@ const UserCarsList = () => {
     fetchCars();
   }, []);
 
+//Logica de favoritos
+const [favorites, setFavorites] = useState([]) // array de carId
+const [isLogged, setIsLogged] = useState(!!localStorage.getItem('token'));
+const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+useEffect(() => {
+  if (!isLogged) {
+    setFavorites([]) // limpiar si se desloguea
+    return
+  }
+
+  let mounted = true
+  const loadFavs = async () => {
+    try {
+      const data = await getFavorites() // devuelve lista de favoritos con car o ids
+      if (!mounted) return
+      setFavorites(data.map(f => f.carId ?? f.id))
+    } catch (e) { /* ignore */ }
+  }
+  loadFavs()
+  return () => { mounted = false }
+}, [isLogged])
+
+const isFavorited = (carId) => favorites.includes(carId)
+useEffect(() => {
+  const onStorage = (e) => {
+    if (e.key === 'token') setIsLogged(!!e.newValue);
+  };
+  window.addEventListener('storage', onStorage);
+  return () => window.removeEventListener('storage', onStorage);
+}, []);
+
+const toggleFavorite = async (carId) => {
+  if (!isLogged) {
+    alert('Inicia sesión para guardar favoritos'); // o usar Notification component
+    return;
+  }
+  if (isFavorited(carId)) {
+    setFavorites(prev => prev.filter(id => id !== carId));
+    try { await removeFavorite(carId) } catch (e) { setFavorites(prev => [carId, ...prev]) }
+  } else {
+    setFavorites(prev => [carId, ...prev]);
+    try { await addFavorite(carId) } catch (e) { setFavorites(prev => prev.filter(id => id !== carId)) }
+  }
+}
   // Lógica de filtrado: filtramos por marca o modelo mientras escribes
-  const filteredCars = cars.filter(car => 
-    car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    car.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredByText = cars.filter(car => 
+  car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  car.model.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+// Si está activado "solo favoritos", intersectar con `favorites`
+const filteredCars = showFavoritesOnly
+  ? filteredByText.filter(car => favorites.includes(car.id))
+  : filteredByText;
 
   if (loading) return <div className="loading">Cargando flota de vehículos...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -53,6 +103,13 @@ const UserCarsList = () => {
           }}
         />
       </div>
+      {isLogged && (
+      <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+        <button className={`btn-filter ${showFavoritesOnly ? 'favorited' : ''}`} onClick={() => setShowFavoritesOnly(prev => !prev)} aria-pressed={showFavoritesOnly}>
+          {showFavoritesOnly ? 'Ver todos' : 'Ver favoritos'}
+        </button>
+      </div>
+    )}
 
       <div className="cars-grid">
         {filteredCars.length > 0 ? (
@@ -72,6 +129,11 @@ const UserCarsList = () => {
                   <span className="car-price">{car.pricePerDay} €/día</span>
                 </div>
                 <button className="btn-details">Reservar ahora</button>
+                {isLogged && (
+                  <button className={`btn-fav ${isFavorited(car.id) ? 'favorited' : ''}`} onClick={() => toggleFavorite(car.id)}>
+                  {isFavorited(car.id) ? 'Eliminar Favorito' : 'Guardar favorito'}
+                </button>
+                )}
               </div>
             </div>
           ))
