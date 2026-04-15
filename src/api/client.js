@@ -1,17 +1,18 @@
-import axios from 'axios'
+import axios from 'axios';
 
 const client = axios.create({
   baseURL: 'http://localhost:4000/api',
-  headers: { 'Content-Type': 'application/json' }
-})
+});
 
-// Interceptor para enviar el token JWT automáticamente si existe
+// Este interceptor pega el token automáticamente en cada petición
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
-export default client
+export default client;

@@ -36,6 +36,7 @@ model Car {
   model       String  // e.g., "Corolla"
   year        Int     // e.g., 2020
   pricePerDay Float   // e.g., 35.5
+  image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
