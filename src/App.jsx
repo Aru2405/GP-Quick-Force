@@ -1,53 +1,85 @@
-import React, { useState, useEffect } from 'react'
-import AdminPage from './components/AdminPage'
-import LoginForm from './components/LoginForm' // Importamos el formulario que creamos
+import React, { useState, useEffect } from 'react';
 import UserCarsList from './components/UserCarsList';
-import './styles.css'
+import LoginForm from './components/LoginForm'; 
+import AdminPage from './components/AdminPage';
+import './styles.css';
 
 export default function App() {
-  // Estado para saber si el usuario está identificado
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [view, setView] = useState('catalog');
 
-  // Al cargar la app, comprobamos si ya hay un token guardado
+  // Recuperar sesión básica si hay token
   useEffect(() => {
-    const savedToken = localStorage.getItem('token')
-    if (savedToken) {
-      // Si hay token, asumimos que está logueado (Aitzol podrá mejorar esto luego)
-      setUser({ loggedIn: true })
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUser({ loggedIn: true }); 
     }
-    setLoading(false)
-  }, [])
+  }, []);
 
   const handleLoginSuccess = (userData) => {
-    setUser(userData)
-  }
+    setUser(userData);
+    setView('admin');
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-  }
-
-  if (loading) return <div className="app-root">Cargando...</div>
+    localStorage.removeItem('token');
+    setUser(null);
+    setView('catalog');
+  };
 
   return (
     <div className="app-root">
-      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Panel Admin — Catálogo de Coches</h1>
-        {user && (
-          <button className="btn-outline" onClick={handleLogout} style={{ fontSize: '0.8rem' }}>
-            Cerrar Sesión
-          </button>
-        )}
+      <header className="navbar" style={{
+        background: '#7b1637',
+        padding: '1rem 2rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        color: 'white'
+      }}>
+        <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>🚗 GP Quick Force</div>
+        <div style={{ display: 'flex', gap: '15px' }}>
+          
+          {/* Lógica de botones según tu petición exacta */}
+          
+          {/* 1. Si estamos viendo el catálogo */}
+          {view === 'catalog' && (
+            !user ? (
+              // No está logueado: Solo Iniciar Sesión
+              <button onClick={() => setView('login')} className="btn-nav">Entrar (Admin)</button>
+            ) : (
+              // Está logueado: Gestionar y Salir
+              <>
+                <button onClick={() => setView('admin')} className="btn-nav">Gestionar</button>
+                <button onClick={handleLogout} className="btn-nav logout">Salir</button>
+              </>
+            )
+          )}
+
+          {/* 2. Si estamos en la pantalla de Gestionar (Admin) */}
+          {view === 'admin' && (
+            <>
+              <button onClick={() => setView('catalog')} className="btn-nav">Ver catálogo</button>
+              <button onClick={handleLogout} className="btn-nav logout">Salir</button>
+            </>
+          )}
+
+          {/* 3. Si estamos en el Login (Para poder volver atrás) */}
+          {view === 'login' && (
+            <button onClick={() => setView('catalog')} className="btn-nav">Volver al Catálogo</button>
+          )}
+        </div>
       </header>
-      <main>
-        {/* LA CLAVE: Si no hay usuario, muestra LoginForm. Si hay, muestra AdminPage */}
-        {!user ? (
-          <LoginForm onLoginSuccess={handleLoginSuccess} />
-        ) : (
-          <AdminPage />
-        )}
+
+      <main style={{ padding: '20px' }}>
+        {view === 'catalog' && <UserCarsList />}
+        {view === 'login' && !user && <LoginForm onLoginSuccess={handleLoginSuccess} />}
+        {view === 'admin' && user && <AdminPage />}
       </main>
+
+      <footer className="footer">
+        &copy; 2026 GP Quick Force - Proyecto Concesionario
+      </footer>
     </div>
-  )
+  );
 }
