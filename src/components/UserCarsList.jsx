@@ -134,7 +134,7 @@ const UserCarsList = ({ user, onAuthRequired, onlyFavorites = false }) => {
                 {/* Botón Reservar con el mismo portero */}
                 <button 
                   className="btn-details"
-                  onClick={() => handleProtectedAction(() => alert(`Iniciando reserva para: ${car.make}`))}
+                  onClick={() => handleProtectedAction(() => alert(`Reserva realizada para: ${car.make}`))}
                 >
                   Reservar ahora
                 </button>
