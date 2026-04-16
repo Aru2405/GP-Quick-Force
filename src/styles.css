@@ -114,3 +114,60 @@ body {
 .car-card {
   animation: fadeIn 0.5s ease forwards;
 }
+
+/* Botón favorito */
+.btn-fav {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  background: white;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .16s ease, transform .12s ease, box-shadow .16s ease;
+  margin: 10px 0 0 0;
+  text-align: center;
+}
+
+.btn-fav:hover {
+  background: var(--bg);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(123,22,55,0.06);
+}
+
+.btn-fav.favorited {
+  background: linear-gradient(180deg,var(--accent),#5e102b);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(123,22,55,0.16);
+}
+/* Botón toggle "Ver favoritos"*/
+.btn-filter {
+  display: inline-block;
+  width: 140px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  background: white;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background .16s ease, transform .12s ease, box-shadow .16s ease;
+  margin: 10px 0 0 0;
+}
+
+.btn-filter:hover {
+  background: var(--bg);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(123,22,55,0.06);
+}
+
+.btn-filter.favorited {
+  background: linear-gradient(180deg,var(--accent),#5e102b);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(123,22,55,0.16);
+}

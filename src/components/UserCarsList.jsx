@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCars } from '../api/cars';
+import { getFavorites, addFavorite, removeFavorite } from '../api/favorites';
 
 // Añadimos user y onAuthRequired que le pasa App.jsx
 const UserCarsList = ({ user, onAuthRequired }) => {
@@ -32,10 +33,15 @@ const UserCarsList = ({ user, onAuthRequired }) => {
   };
 
   // Lógica de filtrado: filtramos por marca o modelo mientras escribes
-  const filteredCars = cars.filter(car => 
-    car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    car.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredByText = cars.filter(car => 
+  car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  car.model.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+// Si está activado "solo favoritos", intersectar con `favorites`
+const filteredCars = showFavoritesOnly
+  ? filteredByText.filter(car => favorites.includes(car.id))
+  : filteredByText;
 
   if (loading) return <div className="loading">Cargando flota de vehículos...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -63,6 +69,13 @@ const UserCarsList = ({ user, onAuthRequired }) => {
           }}
         />
       </div>
+      {isLogged && (
+      <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+        <button className={`btn-filter ${showFavoritesOnly ? 'favorited' : ''}`} onClick={() => setShowFavoritesOnly(prev => !prev)} aria-pressed={showFavoritesOnly}>
+          {showFavoritesOnly ? 'Ver todos' : 'Ver favoritos'}
+        </button>
+      </div>
+    )}
 
       <div className="cars-grid">
         {filteredCars.length > 0 ? (

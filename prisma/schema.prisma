@@ -24,6 +24,7 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  favorites Favorite[]
 
   @@map("users")
 }
@@ -39,6 +40,18 @@ model Car {
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  favorites Favorite[]
 
   @@map("cars")
+}
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  car       Car      @relation(fields: [carId], references: [id])
+  carId     Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, carId])
+  @@map("favorites")
 }
