@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import client from '../api/client'
 
-export default function LoginForm({ onLoginSuccess }) {
+export default function LoginForm({ onLoginSuccess, onGoToRegister }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -11,21 +11,17 @@ export default function LoginForm({ onLoginSuccess }) {
     setError(null)
 
     try {
-      // Nos comunicamos con la ruta del "Cerrojo" que creaste en el Backend
       const response = await client.post('/auth/login', {
         email,
         password
       })
 
-      // Guardamos la llave maestra en el navegador
       localStorage.setItem('token', response.data.token)
 
-      // Avisamos a la aplicación de que hemos entrado con éxito
       if (onLoginSuccess) {
         onLoginSuccess(response.data.user)
       }
     } catch (err) {
-      // Si falla (contraseña incorrecta), mostramos tu mensaje de error
       setError(err.response?.data?.message || 'Error al iniciar sesión')
     }
   }
@@ -59,10 +55,20 @@ export default function LoginForm({ onLoginSuccess }) {
           />
         </div>
 
-        <button type="submit" className="btn" style={{ width: '100%' }}>
+        <button type="submit" className="btn" style={{ width: '100%', padding: '10px', backgroundColor: '#7b1637', color: 'white', border: 'none', cursor: 'pointer' }}>
           Entrar
         </button>
       </form>
+
+      <p style={{ marginTop: '20px', textAlign: 'center' }}>
+        ¿No tienes cuenta todavía? {' '}
+        <span 
+          onClick={onGoToRegister} 
+          style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Regístrate aquí
+        </span>
+      </p>
     </div>
   )
 }

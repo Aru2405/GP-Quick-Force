@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import UserCarsList from './components/UserCarsList';
 import LoginForm from './components/LoginForm'; 
+import RegisterForm from './components/RegisterForm'; 
 import AdminPage from './components/AdminPage';
 import './styles.css';
 
@@ -8,78 +9,77 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState('catalog');
 
-  // Recuperar sesión básica si hay token
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      setUser({ loggedIn: true }); 
+    const savedUser = localStorage.getItem('user');
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
     }
   }, []);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    setView('admin');
+    localStorage.setItem('user', JSON.stringify(userData));
+    // Si es Admin va a gestión, si es User se queda en catálogo
+    setView(userData.role === 'ADMIN' ? 'admin' : 'catalog');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     setView('catalog');
   };
 
   return (
     <div className="app-root">
-      <header className="navbar" style={{
-        background: '#7b1637',
-        padding: '1rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        color: 'white'
-      }}>
+      <header className="navbar" style={{ background: '#7b1637', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
         <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>🚗 GP Quick Force</div>
         <div style={{ display: 'flex', gap: '15px' }}>
           
-          {/* Lógica de botones según tu petición exacta */}
-          
-          {/* 1. Si estamos viendo el catálogo */}
+          {/* Lógica de botones corregida */}
           {view === 'catalog' && (
             !user ? (
-              // No está logueado: Solo Iniciar Sesión
-              <button onClick={() => setView('login')} className="btn-nav">Entrar (Admin)</button>
+              <button onClick={() => setView('login')} className="btn-nav">Iniciar Sesión/Registrarse</button>
             ) : (
-              // Está logueado: Gestionar y Salir
               <>
-                <button onClick={() => setView('admin')} className="btn-nav">Gestionar</button>
-                <button onClick={handleLogout} className="btn-nav logout">Salir</button>
+                {user.role === 'ADMIN' && <button onClick={() => setView('admin')} className="btn-nav">Gestionar</button>}
+                <button onClick={handleLogout} className="btn-nav logout">Cerrar Sesión</button>
               </>
             )
           )}
 
-          {/* 2. Si estamos en la pantalla de Gestionar (Admin) */}
           {view === 'admin' && (
             <>
               <button onClick={() => setView('catalog')} className="btn-nav">Ver catálogo</button>
-              <button onClick={handleLogout} className="btn-nav logout">Salir</button>
+              <button onClick={handleLogout} className="btn-nav logout">Cerrar Sesión</button>
             </>
           )}
 
-          {/* 3. Si estamos en el Login (Para poder volver atrás) */}
-          {view === 'login' && (
+          {(view === 'login' || view === 'register') && (
             <button onClick={() => setView('catalog')} className="btn-nav">Volver al Catálogo</button>
           )}
         </div>
       </header>
 
       <main style={{ padding: '20px' }}>
-        {view === 'catalog' && <UserCarsList />}
-        {view === 'login' && !user && <LoginForm onLoginSuccess={handleLoginSuccess} />}
-        {view === 'admin' && user && <AdminPage />}
+        {view === 'catalog' && (
+          <UserCarsList user={user} onAuthRequired={() => setView('login')} />
+        )}
+        {view === 'login' && (
+          <LoginForm 
+            onLoginSuccess={handleLoginSuccess} 
+            onGoToRegister={() => setView('register')} 
+          />
+        )}
+        {view === 'register' && (
+          <RegisterForm 
+            onRegisterSuccess={handleLoginSuccess} 
+            onGoToLogin={() => setView('login')} 
+          />
+        )}
+        {view === 'admin' && user?.role === 'ADMIN' && <AdminPage />}
       </main>
-
-      <footer className="footer">
-        &copy; 2026 GP Quick Force - Proyecto Concesionario
-      </footer>
     </div>
   );
 }

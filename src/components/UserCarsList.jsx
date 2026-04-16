@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getCars } from '../api/cars';
 
-const UserCarsList = () => {
+// Añadimos user y onAuthRequired que le pasa App.jsx
+const UserCarsList = ({ user, onAuthRequired }) => {
   const [cars, setCars] = useState([]);
   const [searchTerm, setSearchTerm] = useState(''); // Para el buscador
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,15 @@ const UserCarsList = () => {
     };
     fetchCars();
   }, []);
+
+  // Función para el botón de reservar
+  const handleReserve = (carName) => {
+    if (!user) {
+      onAuthRequired(); // Si no hay usuario, manda al login
+    } else {
+      alert(`Reserva realizada para: ${carName}`);
+    }
+  };
 
   // Lógica de filtrado: filtramos por marca o modelo mientras escribes
   const filteredCars = cars.filter(car => 
@@ -71,7 +81,13 @@ const UserCarsList = () => {
                   <span className="car-year">Año: {car.year}</span>
                   <span className="car-price">{car.pricePerDay} €/día</span>
                 </div>
-                <button className="btn-details">Reservar ahora</button>
+                {/* Ahora el botón hace lo que pediste */}
+                <button 
+                  className="btn-details" 
+                  onClick={() => handleReserve(`${car.make} ${car.model}`)}
+                >
+                  Reservar ahora
+                </button>
               </div>
             </div>
           ))
