@@ -52,6 +52,6 @@ model Favorite {
   carId     Int
   createdAt DateTime @default(now())
 
-  @@unique([userId, carId])
+  @@unique([userId, carId]) // Evita que un usuario añada dos veces el mismo coche
   @@map("favorites")
 }

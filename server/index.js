@@ -88,29 +88,18 @@ app.delete('/api/cars/:id', verifyToken, isAdmin, async (req, res) => {
 
 // Obtener favoritos del usuario
 app.get('/api/favorites', verifyToken, async (req, res) => {
-  const favs = await favoritesRepository.findByUser(req.user.id)
+  const favs = await require('./repositories/favoritesRepository').findByUser(req.user.id)
   res.json(favs)
 })
 
-// Añadir favorito
 app.post('/api/favorites', verifyToken, async (req, res) => {
-  const { carId } = req.body
-  try {
-    const fav = await favoritesRepository.add(req.user.id, carId)
-    res.status(201).json(fav)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
+  await require('./repositories/favoritesRepository').add(req.user.id, req.body.carId)
+  res.status(201).json({ message: 'Añadido' })
 })
 
-// Quitar favorito
 app.delete('/api/favorites/:carId', verifyToken, async (req, res) => {
-  try {
-    await favoritesRepository.remove(req.user.id, req.params.carId)
-    res.status(204).send()
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
+  await require('./repositories/favoritesRepository').remove(req.user.id, req.params.carId)
+  res.status(204).send()
 })
 
 const port = process.env.PORT || 4000

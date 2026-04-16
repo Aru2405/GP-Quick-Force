@@ -20,7 +20,6 @@ export default function App() {
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    // Si es Admin va a gestión, si es User se queda en catálogo
     setView(userData.role === 'ADMIN' ? 'admin' : 'catalog');
   };
 
@@ -37,16 +36,27 @@ export default function App() {
         <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>🚗 GP Quick Force</div>
         <div style={{ display: 'flex', gap: '15px' }}>
           
-          {/* Lógica de botones corregida */}
+          {/* Lógica de botones original + NUEVO BOTÓN FAVORITOS */}
           {view === 'catalog' && (
             !user ? (
               <button onClick={() => setView('login')} className="btn-nav">Iniciar Sesión/Registrarse</button>
             ) : (
               <>
+                {/* BOTÓN NUEVO SOLAMENTE CUANDO ESTÁ LOGUEADO */}
+                <button onClick={() => setView('favorites')} className="btn-nav">Lista de Favoritos ❤️</button>
+                
                 {user.role === 'ADMIN' && <button onClick={() => setView('admin')} className="btn-nav">Gestionar</button>}
                 <button onClick={handleLogout} className="btn-nav logout">Cerrar Sesión</button>
               </>
             )
+          )}
+
+          {/* Si estamos en favoritos, permitimos volver al catálogo */}
+          {view === 'favorites' && (
+            <>
+              <button onClick={() => setView('catalog')} className="btn-nav">Ver catálogo completo</button>
+              <button onClick={handleLogout} className="btn-nav logout">Cerrar Sesión</button>
+            </>
           )}
 
           {view === 'admin' && (
@@ -63,9 +73,15 @@ export default function App() {
       </header>
 
       <main style={{ padding: '20px' }}>
+        {/* Usamos el mismo componente para Catálogo y Favoritos filtrando por prop */}
         {view === 'catalog' && (
           <UserCarsList user={user} onAuthRequired={() => setView('login')} />
         )}
+        
+        {view === 'favorites' && (
+          <UserCarsList user={user} onAuthRequired={() => setView('login')} onlyFavorites={true} />
+        )}
+
         {view === 'login' && (
           <LoginForm 
             onLoginSuccess={handleLoginSuccess} 

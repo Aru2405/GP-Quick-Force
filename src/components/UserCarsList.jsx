@@ -1,54 +1,78 @@
 import React, { useEffect, useState } from 'react';
 import { getCars } from '../api/cars';
+import client from '../api/client'; // Importamos para los favoritos
 
-// Añadimos user y onAuthRequired que le pasa App.jsx
-const UserCarsList = ({ user, onAuthRequired }) => {
+const UserCarsList = ({ user, onAuthRequired, onlyFavorites = false }) => {
   const [cars, setCars] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // Para el buscador
+  const [favorites, setFavorites] = useState([]); // Array de IDs de favoritos
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCars = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getCars();
-        setCars(data);
+        const carsData = await getCars();
+        setCars(carsData);
+
+        // Si hay usuario, cargamos sus favoritos reales de la DB
+        if (user) {
+          const favsResponse = await client.get('/favorites');
+          setFavorites(favsResponse.data.map(f => f.carId));
+        }
       } catch (err) {
         setError('No se pudo conectar con el servidor. ¿Has encendido la ballena?');
       } finally {
         setLoading(false);
       }
     };
-    fetchCars();
-  }, []);
+    fetchData();
+  }, [user]);
 
-  // Función para el botón de reservar
-  const handleReserve = (carName) => {
+  // Lógica de Portero para Reservar y Corazón
+  const handleProtectedAction = (actionFn) => {
     if (!user) {
-      onAuthRequired(); // Si no hay usuario, manda al login
+      onAuthRequired();
     } else {
-      alert(`Reserva realizada para: ${carName}`);
+      actionFn();
     }
   };
 
-  // Lógica de filtrado: filtramos por marca o modelo mientras escribes
-  const filteredCars = cars.filter(car => 
-    car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    car.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const toggleFavorite = async (carId) => {
+    try {
+      if (favorites.includes(carId)) {
+        await client.delete(`/favorites/${carId}`);
+        setFavorites(favorites.filter(id => id !== carId));
+      } else {
+        await client.post('/favorites', { carId });
+        setFavorites([...favorites, carId]);
+      }
+    } catch (err) {
+      console.error("Error al actualizar favoritos", err);
+    }
+  };
+
+  // Lógica de filtrado doble: Buscador + Si estamos en vista Favoritos
+  const filteredCars = cars.filter(car => {
+    const matchesSearch = car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          car.model.toLowerCase().includes(searchTerm.toLowerCase());
+    const isFav = onlyFavorites ? favorites.includes(car.id) : true;
+    return matchesSearch && isFav;
+  });
 
   if (loading) return <div className="loading">Cargando flota de vehículos...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="container">
-      <h1 className="main-title">Encuentra tu próximo coche</h1>
+      <h1 className="main-title">
+        {onlyFavorites ? "Tus coches favoritos ❤️" : "Encuentra tu próximo coche"}
+      </h1>
 
-      {/* Buscador: El toque 'Pro' */}
       <div className="search-container" style={{ marginBottom: '30px', textAlign: 'center' }}>
         <input 
           type="text" 
-          placeholder="Busca por marca o modelo (ej. BMW, Toyota...)" 
+          placeholder="Busca por marca o modelo..." 
           className="search-input"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -67,7 +91,32 @@ const UserCarsList = ({ user, onAuthRequired }) => {
       <div className="cars-grid">
         {filteredCars.length > 0 ? (
           filteredCars.map((car) => (
-            <div key={car.id} className="car-card">
+            <div key={car.id} className="car-card" style={{ position: 'relative' }}>
+              
+              {/* EL CORAZÓN: Portero incluido */}
+              <button 
+                onClick={() => handleProtectedAction(() => toggleFavorite(car.id))}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'rgba(255,255,255,0.8)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  cursor: 'pointer',
+                  fontSize: '1.4rem',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                  zIndex: 1
+                }}
+              >
+                {favorites.includes(car.id) ? '❤️' : '🤍'}
+              </button>
+
               <div className="car-image-container">
                 <img 
                   src={car.image || `https://via.placeholder.com/400x250?text=${car.make}+${car.model}`} 
@@ -81,10 +130,11 @@ const UserCarsList = ({ user, onAuthRequired }) => {
                   <span className="car-year">Año: {car.year}</span>
                   <span className="car-price">{car.pricePerDay} €/día</span>
                 </div>
-                {/* Ahora el botón hace lo que pediste */}
+                
+                {/* Botón Reservar con el mismo portero */}
                 <button 
-                  className="btn-details" 
-                  onClick={() => handleReserve(`${car.make} ${car.model}`)}
+                  className="btn-details"
+                  onClick={() => handleProtectedAction(() => alert(`Iniciando reserva para: ${car.make}`))}
                 >
                   Reservar ahora
                 </button>
@@ -93,7 +143,7 @@ const UserCarsList = ({ user, onAuthRequired }) => {
           ))
         ) : (
           <p style={{ textAlign: 'center', gridColumn: '1/-1' }}>
-            No hemos encontrado ningún coche que coincida con "{searchTerm}".
+            {onlyFavorites ? "Aún no tienes favoritos guardados." : `No hay resultados para "${searchTerm}".`}
           </p>
         )}
       </div>

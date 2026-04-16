@@ -1,19 +1,16 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../db')
 
 class FavoritesRepository {
   async findByUser(userId) {
     return prisma.favorite.findMany({
       where: { userId: Number(userId) },
-      include: { car: true },
-      orderBy: { createdAt: 'desc' }
+      include: { car: true }
     })
   }
 
   async add(userId, carId) {
     return prisma.favorite.create({
-      data: { userId: Number(userId), carId: Number(carId) },
-      include: { car: true }
+      data: { userId: Number(userId), carId: Number(carId) }
     })
   }
 
