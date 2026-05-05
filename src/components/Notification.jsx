@@ -1,5 +1,4 @@
 import React from 'react'
-console.log(React)
 export default function Notification({ toast, onClose }) {
   if (!toast) return null
 

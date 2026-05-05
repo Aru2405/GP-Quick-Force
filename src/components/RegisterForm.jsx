@@ -6,9 +6,11 @@ export default function RegisterForm({ onRegisterSuccess, onGoToLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
+  const [isLoading, setIsLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     try {
       const response = await client.post('/auth/register', { email, password });
@@ -21,6 +23,8 @@ export default function RegisterForm({ onRegisterSuccess, onGoToLogin }) {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error al crear la cuenta');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -36,6 +40,7 @@ export default function RegisterForm({ onRegisterSuccess, onGoToLogin }) {
           value={email} 
           onChange={(e) => setEmail(e.target.value)} 
           required 
+          disabled={isLoading}
           style={{ width: '100%', padding: '10px', marginBottom: '15px' }}
         />
         
@@ -45,11 +50,21 @@ export default function RegisterForm({ onRegisterSuccess, onGoToLogin }) {
           value={password} 
           onChange={(e) => setPassword(e.target.value)} 
           required 
+          disabled={isLoading}
           style={{ width: '100%', padding: '10px', marginBottom: '20px' }}
         />
         
-        <button type="submit" className="btn" style={{ width: '100%', padding: '10px', background: '#7b1637', color: 'white', border: 'none', cursor: 'pointer' }}>
-          Registrarse y entrar ahora
+        <button 
+          type="submit" 
+          className="btn" 
+          disabled={isLoading} 
+          style={{ 
+            width: '100%', padding: '10px', background: '#7b1637', color: 'white', 
+            border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.7 : 1
+          }}
+        >
+          {isLoading ? 'Registrando...' : 'Registrarse y entrar ahora'}
         </button>
       </form>
       

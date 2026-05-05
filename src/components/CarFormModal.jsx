@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
+const INITIAL_FORM_STATE = {
+    make: '',
+    model: '',
+    year: '',
+    pricePerDay: '',
+    image: ''
+};
 export default function CarFormModal({ isOpen, onClose, onSave, car }) {
-    const [form, setForm] = useState({
-        make: '',
-        model: '',
-        year: '',
-        pricePerDay: '',
-        image: ''
-    });
+    const [form, setForm] = useState(INITIAL_FORM_STATE);
 
     useEffect(() => {
         if (car) {
@@ -19,13 +20,7 @@ export default function CarFormModal({ isOpen, onClose, onSave, car }) {
                 image: car.image || ''
             });
         } else {
-            setForm({
-                make: '',
-                model: '',
-                year: '',
-                pricePerDay: '',
-                image: ''
-            });
+            setForm(INITIAL_FORM_STATE);
         }
     }, [car, isOpen]);
 

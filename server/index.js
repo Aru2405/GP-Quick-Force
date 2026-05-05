@@ -88,18 +88,30 @@ app.delete('/api/cars/:id', verifyToken, isAdmin, async (req, res) => {
 
 // Obtener favoritos del usuario
 app.get('/api/favorites', verifyToken, async (req, res) => {
-  const favs = await require('./repositories/favoritesRepository').findByUser(req.user.id)
-  res.json(favs)
+  try {
+    const favs = await favoritesRepository.findByUser(req.user.id)
+    res.json(favs)
+  } catch (err) {
+    res.status(500).json({ message: 'Error al obtener los favoritos' })
+  }
 })
 
 app.post('/api/favorites', verifyToken, async (req, res) => {
-  await require('./repositories/favoritesRepository').add(req.user.id, req.body.carId)
-  res.status(201).json({ message: 'Añadido' })
+  try {
+    await favoritesRepository.add(req.user.id, req.body.carId)
+    res.status(201).json({ message: 'Añadido' })
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
 })
 
 app.delete('/api/favorites/:carId', verifyToken, async (req, res) => {
-  await require('./repositories/favoritesRepository').remove(req.user.id, req.params.carId)
-  res.status(204).send()
+  try {
+    await favoritesRepository.remove(req.user.id, req.params.carId)
+    res.status(204).send()
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
 })
 
 const port = process.env.PORT || 4000

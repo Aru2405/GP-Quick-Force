@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret'
 
-async function register(data) {
+const register = async (data) => {
   const { email, password, role } = data
 
   if (!email || !password) {
@@ -19,7 +19,7 @@ async function register(data) {
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
 
-  return await prisma.user.create({
+  return prisma.user.create({
     data: {
       email,
       password: hashedPassword,
@@ -29,7 +29,7 @@ async function register(data) {
   })
 }
 
-async function login(email, password) {
+const login = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } })
   
   // LANZAMOS ERRORES ESPECÍFICOS

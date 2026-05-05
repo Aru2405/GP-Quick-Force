@@ -7,6 +7,7 @@ async function main() {
   console.log('🌱 Limpiando y sembrando base de datos...');
 
   // 1. Borramos todo para evitar duplicados y errores de clave única
+  await prisma.favorite.deleteMany();
   await prisma.car.deleteMany();
   await prisma.user.deleteMany();
 
@@ -26,43 +27,36 @@ async function main() {
   console.log('✅ Usuario Admin creado: jefe@concesionario.com');
 
   // 3. Creamos los coches iniciales respetando vuestro modelo
-  const cars = await Promise.all([
-    prisma.car.create({
-      data: {
+  const cars = await prisma.car.createMany({
+    data: [
+      {
         make: 'Toyota',
         model: 'Corolla',
         year: 2020,
-        pricePerDay: 35.5
-      }
-    }),
-    prisma.car.create({
-      data: {
+        pricePerDay: 35.5,
+      },
+      {
         make: 'Ford',
         model: 'Focus',
         year: 2019,
-        pricePerDay: 30.0
-      }
-    }),
-    prisma.car.create({
-      data: {
+        pricePerDay: 30.0,
+      },
+      {
         make: 'Seat',
         model: 'Ibiza',
         year: 2021,
-        pricePerDay: 32.0
-      }
-    }),
-
-    prisma.car.create({
-      data: {
+        pricePerDay: 32.0,
+      },
+      {
         make: 'BMW',
         model: 'X4',
         year: 2024,
-        pricePerDay: 130.0
+        pricePerDay: 130.0,
       }
-    })
-  ]);
+    ]
+  });
 
-  console.log(`✅ Base de datos lista con ${cars.length} coches.`);
+  console.log(`✅ Base de datos lista con ${cars.count} coches.`);
 }
 
 main()

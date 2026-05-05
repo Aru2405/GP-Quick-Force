@@ -1,17 +1,16 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../db');
 
 class CarsRepository {
   // Obtener todos los coches
   async findAll() {
-    return await prisma.car.findMany({
+    return prisma.car.findMany({
       orderBy: { createdAt: 'desc' }
     });
   }
 
   // Crear un nuevo coche
   async create(data) {
-    return await prisma.car.create({
+    return prisma.car.create({
       data: {
         make: data.make,
         model: data.model,
@@ -24,7 +23,7 @@ class CarsRepository {
 
   // Actualizar un coche existente
   async update(id, data) {
-    return await prisma.car.update({
+    return prisma.car.update({
       where: { id: Number(id) },
       data: {
         make: data.make,
@@ -38,7 +37,7 @@ class CarsRepository {
 
   // ELIMINAR: Aseguramos que el nombre sea deleteById
   async deleteById(id) {
-    return await prisma.car.delete({
+    return prisma.car.delete({
       where: { id: Number(id) }
     });
   }

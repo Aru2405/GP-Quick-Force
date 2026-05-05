@@ -2,8 +2,11 @@ const prisma = require('../db')
 
 class FavoritesRepository {
   async findByUser(userId) {
+    const validId = parseInt(userId, 10);
+    if (isNaN(validId)) return [];
+
     return prisma.favorite.findMany({
-      where: { userId: Number(userId) },
+      where: { userId: validId },
       include: { car: true }
     })
   }
